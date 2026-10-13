@@ -1,120 +1,203 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const candlesContainer = document.getElementById('candles');
-    const blowArea = document.getElementById('blowArea');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
 
-    // Initially hide candles and disable interaction
-    candlesContainer.style.opacity = '0';
-    blowArea.style.pointerEvents = 'none';
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Caveat', sans-serif;
+}
 
-    // Create 9 candles with flames
-    for (let i = 0; i < 9; i++) {
-        const candle = document.createElement('div');
-        candle.className = 'velas';
-        candle.style.opacity = '0';
+body {
+    background: #65b2fb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-        // Create 5 flames for each candle
-        for (let j = 0; j < 5; j++) {
-            const flame = document.createElement('div');
-            flame.className = 'fuego';
-            candle.appendChild(flame);
-        }
+.cake-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        candlesContainer.appendChild(candle);
+#cake {
+    display: block;
+    position: relative;
+    margin: 0;
+}
+
+@keyframes candle-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
     }
 
-    // Wait for the final cake animation to complete
-    const cremaAnimation = document.getElementById('crema');
-    cremaAnimation.addEventListener('endEvent', function () {
-        // Show candles container
-        candlesContainer.style.opacity = '1';
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-        // Animate candles one by one
-        const candles = document.querySelectorAll('.velas');
-        candles.forEach((candle, index) => {
-            setTimeout(() => {
-                candle.style.animation = `candle-appear 0.4s ease-out forwards`;
-                candle.style.animationDelay = `${index * 0.15}s`;
-            }, 0);
-        });
+.candles-container {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 140px;
+    height: 35px;
+    display: flex;
+    justify-content: space-between;
+    transform: translateX(-50%);
+    opacity: 0;
+    will-change: transform;
+    z-index: 5;
+}
 
-        // Enable interaction after all candles appear
-        setTimeout(() => {
-            blowArea.style.pointerEvents = 'auto';
-        }, candles.length * 150 + 400);
-    });
+.velas {
+    background: #ffffff;
+    border-radius: 10px;
+    position: relative;
+    width: 5px;
+    height: 35px;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
 
-    let blownCandles = 0;
-    const totalCandles = 9;
+.velas:after,
+.velas:before {
+    background: rgba(255, 0, 0, 0.4);
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 3px;
+}
 
-    // Detect blowing (mouse click or touch)
-    blowArea.addEventListener('click', blowCandles);
-    blowArea.addEventListener('touchstart', blowCandles);
+.velas:after {
+    top: 25%;
+    left: 0;
+}
 
-    function blowCandles() {
-        if (blownCandles >= totalCandles) return;
-        blownCandles = totalCandles;
+.velas:before {
+    top: 45%;
+    left: 0;
+}
 
-        // Disable further clicks during animation
-        blowArea.style.pointerEvents = 'none';
+.fuego {
+    border-radius: 100%;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    margin-left: -2.6px;
+    width: 6.66666667px;
+    height: 18px;
+    opacity: 1;
+    transition: opacity 0.5s;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
 
-        // Group flames by candle for more realistic blowing
-        const candles = document.querySelectorAll('.velas');
+.fuego:nth-child(1) {
+    animation: fuego 2s 1.5s infinite;
+}
 
-        candles.forEach((candle, candleIndex) => {
-            const flames = candle.querySelectorAll('.fuego');
+.fuego:nth-child(2) {
+    animation: fuego 1.5s 1.5s infinite;
+}
 
-            // Add a slight delay between candles (shorter than before)
-            setTimeout(() => {
-                // First make the flame flicker
-                flames.forEach(flame => {
-                    flame.style.animation = 'flicker 0.2s 2 alternate';
-                });
+.fuego:nth-child(3) {
+    animation: fuego 1s 1.5s infinite;
+}
 
-                // Then extinguish after flickering
-                setTimeout(() => {
-                    flames.forEach(flame => {
-                        flame.style.opacity = '0';
-                        flame.style.transform = 'scale(0)';
-                        flame.style.transition = 'all 0.1s ease-out';
-                    });
-                }, 400);
+.fuego:nth-child(4) {
+    animation: fuego 0.5s 1.5s infinite;
+}
 
-            }, candleIndex * 50); // Reduced delay between candles
-        });
+.fuego:nth-child(5) {
+    animation: fuego 0.2s 1.5s infinite;
+}
 
-        // Start confetti after all candles are blown
-        setTimeout(createConfetti, candles.length * 80 + 500);
+#gifContainer {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    pointer-events: none;
+}
 
-        // Update instructions
-        setTimeout(() => {
-            document.querySelector('.instructions').textContent = "Now your wish will come true!";
-        }, candles.length * 80 + 300);
+#gifContainer img {
+    width: min(300px, 90vw);
+    height: auto;
+    display: block;
+}
+
+@keyframes fuego {
+    0%,
+    100% {
+        background: rgba(254, 248, 97, 0.5);
+        box-shadow: 0 0 40px 10px rgba(248, 233, 209, 0.2);
+        transform: translateY(0) scale(1);
     }
 
-    function createConfetti() {
-        const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff', '#ff8800', '#ff0088', '#8800ff'];
-
-        for (let i = 0; i < 100; i++) {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.left = Math.random() * 100 + 'vw';
-            confetti.style.width = (Math.random() * 10 + 5) + 'px';
-            confetti.style.height = (Math.random() * 10 + 5) + 'px';
-            confetti.style.animationDelay = (Math.random() * 0.5) + 's';
-            confetti.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
-
-            document.body.appendChild(confetti);
-
-            setTimeout(() => {
-                confetti.remove();
-            }, 3000);
-        }
-
-        setTimeout(onConfettiEnd, 3000);
+    50% {
+        background: rgba(255, 50, 0, 0.1);
+        box-shadow: 0 0 40px 20px rgba(248, 233, 209, 0.2);
+        transform: translateY(-20px) scale(0);
     }
-});
+}
 
-function onConfettiEnd() {
-    document.getElementById('gifContainer').style.display = 'block';
+.text {
+    color: #7f6158;
+    font-weight: 300;
+    font-style: italic;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.text h1 {
+    font-size: 2em;
+    margin: 5px 0;
+}
+
+.instructions {
+    color: #7f6158;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 1.6em;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #f00;
+    opacity: 0;
+    top: -10px;
+    animation: confetti-fall 3s linear forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.blow-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background: transparent;
 }
